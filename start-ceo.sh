@@ -74,10 +74,11 @@ start_boss() {
     tmux send-keys -t "$CEO_SESSION:0" "echo 'Starting Boss (Opus)...'" Enter
     tmux send-keys -t "$CEO_SESSION:0" "$CC_BOSS" Enter
     
-    # 初期化指示をマークダウンファイルから送信
+    # 初期化指示を簡潔なメッセージで送信
     sleep 8
-    tmux send-keys -t "$CEO_SESSION:0" "/read $SCRIPT_DIR/config/boss-instructions.md"
-    tmux send-keys -t "$CEO_SESSION:0" Enter
+    local init_message="あなたはYouAreTheCEOシステムの上司です。複雑なタスクは必ず部下を活用してください。部下起動: ./scripts/boss-handler.sh spawn_workers [数], タスク割振: ./scripts/boss-handler.sh assign_task worker_1 \"タスク\", 詳細は $SCRIPT_DIR/config/boss-instructions.md を参照"
+    
+    tmux send-keys -t "$CEO_SESSION:0" "$init_message" Enter
     
     print_status "上司（Boss）起動完了"
 }

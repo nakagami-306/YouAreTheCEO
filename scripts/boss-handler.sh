@@ -63,8 +63,9 @@ spawn_workers() {
         sed "s/{WORKER_ID}/$worker_id/g; s#{SCRIPT_DIR}#$SCRIPT_DIR#g; s#{PROJECT_ROOT}#$(dirname "$SCRIPT_DIR")#g" \
             "$SCRIPT_DIR/config/worker-instructions.md" > "$worker_instructions"
         
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "/read $worker_instructions"
-        tmux send-keys -t "$CEO_SESSION:$pane_name" Enter
+        # 部下にも簡潔な初期化メッセージを送信
+        local worker_init="あなたは部下ID: $worker_id です。上司からタスクを受け取り実行してください。報告: ./scripts/communication.sh report_to_boss $worker_id \"メッセージ\", 詳細は $worker_instructions を参照"
+        tmux send-keys -t "$CEO_SESSION:$pane_name" "$worker_init" Enter
         
         # 部下の状態を記録
         echo "ready" > "$CEO_COMM_DIR/worker_${i}_status"
