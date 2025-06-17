@@ -4,10 +4,12 @@
 # 全ペインから最新の状況を収集して表示
 
 # 設定
-PROJECT_DIR="/home/seito_nakagane/project/GaijinHub"
-PANE_ID_FILE="$PROJECT_DIR/multi-agent/.pane_ids"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_DIR="$PROJECT_ROOT"
+PANE_ID_FILE="$PROJECT_ROOT/YouAreTheCEO/.pane_ids"
 SESSION_NAME="claude-agents"
-OUTPUT_FILE="$PROJECT_DIR/multi-agent/results_$(date +%Y%m%d_%H%M%S).md"
+OUTPUT_FILE="$PROJECT_ROOT/YouAreTheCEO/results_$(date +%Y%m%d_%H%M%S).md"
 
 # カラー定義
 RED='\033[0;31m'
@@ -48,7 +50,7 @@ done
 LINES=${LINES:-20}
 
 # ペインIDファイルの確認
-echo -e "${BLUE}Using multi-agent mode${NC}"
+echo -e "${BLUE}Using YouAreTheCEO mode${NC}"
 
 # ペインIDファイルの存在確認
 if [ ! -f "$PANE_ID_FILE" ]; then
@@ -65,7 +67,7 @@ echo -e "${YELLOW}Output file: $OUTPUT_FILE${NC}"
 {
     echo "# Claude Code Results Collection"
     echo "Date: $(date)"
-    echo "Mode: multi-agent"
+    echo "Mode: YouAreTheCEO"
     echo "Session: $SESSION_NAME"
     echo ""
 } > "$OUTPUT_FILE"

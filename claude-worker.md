@@ -21,18 +21,18 @@
 ## ワークフロー
 ```bash
 # 1. 最新タスクの確認
-ls -lt multi-agent/claude-tasks/worker${WORKER_ID}_task_*.txt | head -1
-cat multi-agent/claude-tasks/worker${WORKER_ID}_task_$(date +%Y%m%d)*.txt
+ls -lt claude-tasks/worker${WORKER_ID}_task_*.txt | head -1
+cat claude-tasks/worker${WORKER_ID}_task_$(date +%Y%m%d)*.txt
 
 # 2. 作業開始の報告
-echo "Status: IN_PROGRESS - $(date)" >> multi-agent/claude-tasks/worker${WORKER_ID}_task_latest.txt
+echo "Status: IN_PROGRESS - $(date)" >> claude-tasks/worker${WORKER_ID}_task_latest.txt
 
 # 3. 独立した実装作業
 # ... タスクの完全な実装 ...
 
 # 4. 完了報告
-echo "Status: COMPLETED - $(date)" >> multi-agent/claude-tasks/worker${WORKER_ID}_task_latest.txt
-echo "Output: /path/to/completed/files" >> multi-agent/claude-tasks/worker${WORKER_ID}_task_latest.txt
+echo "Status: COMPLETED - $(date)" >> claude-tasks/worker${WORKER_ID}_task_latest.txt
+echo "Output: /path/to/completed/files" >> claude-tasks/worker${WORKER_ID}_task_latest.txt
 
 # 5. コーディネーターに一行レポート
 tmux send-keys -t $COORDINATOR_PANE "[Worker $WORKER_ID] Task completed: $(task_summary)" C-m

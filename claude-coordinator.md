@@ -7,7 +7,7 @@
 ### 1. タスク分析とチーム規模の決定
 - **タスクの複雑さを評価**: ユーザーから受け取ったタスクを分析
 - **最適なワーカー数を決定**: タスクの複雑さに基づいて必要なワーカー数を判断
-- **チーム構成を決定**: `./multi-agent/scripts/add-workers.sh [数]` でワーカーを追加
+- **チーム構成を決定**: `./scripts/add-workers.sh [数]` でワーカーを追加
 
 #### ワーカー数決定ガイドライン
 - **1-2ワーカー**: 小規模タスク（単機能追加・修正、バグ修正）
@@ -17,10 +17,10 @@
 
 ### 2. タスク分解と配布
 - 大きなタスクを並列実行可能な単位に分解
-- `./multi-agent/scripts/assign-task.sh [WORKER_ID] [TASK]` を使用してワーカーに配布
+- `./scripts/assign-task.sh [WORKER_ID] [TASK]` を使用してワーカーに配布
 
 ### 3. 進捗監視とチーム管理
-- `./multi-agent/scripts/check-status.sh` で定期的にワーカーの状況確認
+- `./scripts/check-status.sh` で定期的にワーカーの状況確認
 - 遅延やブロッカーの早期発見と対処
 - 必要に応じてワーカーの追加・タスクの再配布
 
@@ -39,51 +39,51 @@
 ### ステップ2: チーム構築
 ```bash
 # 必要なワーカー数を追加（例：3人のワーカーが必要と判断した場合）
-./multi-agent/scripts/add-workers.sh 3
+./scripts/add-workers.sh 3
 
 # 全Claude Codeインスタンスを起動
-./multi-agent/scripts/start-all-claude.sh
+./scripts/start-all-claude.sh
 ```
 
 ### ステップ3: タスク分解と配布
 ```bash
 # ワーカーへのタスク配布
-./multi-agent/scripts/assign-task.sh 1 "app/api/listings/searchのパフォーマンス最適化"
-./multi-agent/scripts/assign-task.sh 2 "新しいfavoritesコンポーネントの実装"
-./multi-agent/scripts/assign-task.sh 3 "i18nの日本語翻訳ファイル更新"
+./scripts/assign-task.sh 1 "app/api/listings/searchのパフォーマンス最適化"
+./scripts/assign-task.sh 2 "新しいfavoritesコンポーネントの実装"
+./scripts/assign-task.sh 3 "i18nの日本語翻訳ファイル更新"
 ```
 
 ### ステップ4: 進捗監視と調整
 ```bash
 # 全ワーカーの進捗確認
-./multi-agent/scripts/check-status.sh
+./scripts/check-status.sh
 
 # 必要に応じて追加ワーカーを投入
-./multi-agent/scripts/add-workers.sh 2
+./scripts/add-workers.sh 2
 ```
 
 ### ステップ5: 結果統合
 ```bash
 # 全成果物の収集
-./multi-agent/scripts/collect-results.sh
+./scripts/collect-results.sh
 
 # 全ワーカーのトークンリセット（次タスクの準備）
-./multi-agent/scripts/parallel-clear.sh
+./scripts/parallel-clear.sh
 ```
 
 ## チーム管理コマンド
 
 ### ワーカー管理
-- `./multi-agent/scripts/add-workers.sh [数]` - ワーカーを動的に追加
-- `./multi-agent/scripts/start-all-claude.sh` - 全インスタンスでClaude Code起動
+- `./scripts/add-workers.sh [数]` - ワーカーを動的に追加
+- `./scripts/start-all-claude.sh` - 全インスタンスでClaude Code起動
 
 ### タスク管理
-- `./multi-agent/scripts/assign-task.sh [ID] [TASK]` - 特定ワーカーにタスク配布
-- `./multi-agent/scripts/check-status.sh` - 全ワーカーの状況確認
+- `./scripts/assign-task.sh [ID] [TASK]` - 特定ワーカーにタスク配布
+- `./scripts/check-status.sh` - 全ワーカーの状況確認
 
 ### 結果管理
-- `./multi-agent/scripts/collect-results.sh` - 成果物の収集・統合
-- `./multi-agent/scripts/parallel-clear.sh` - 全ワーカーのリセット
+- `./scripts/collect-results.sh` - 成果物の収集・統合
+- `./scripts/parallel-clear.sh` - 全ワーカーのリセット
 
 ## 判断基準とベストプラクティス
 

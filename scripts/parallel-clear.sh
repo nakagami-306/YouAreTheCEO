@@ -4,8 +4,10 @@
 # 全てのClaude Codeペインで同時に/clearコマンドを実行
 
 # 設定
-PROJECT_DIR="/home/seito_nakagane/project/GaijinHub"
-PANE_ID_FILE="$PROJECT_DIR/multi-agent/.pane_ids"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_DIR="$PROJECT_ROOT"
+PANE_ID_FILE="$PROJECT_ROOT/YouAreTheCEO/.pane_ids"
 
 # カラー定義
 RED='\033[0;31m'
@@ -31,7 +33,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # ペインIDファイルの確認
-echo -e "${BLUE}Using multi-agent mode${NC}"
+echo -e "${BLUE}Using YouAreTheCEO mode${NC}"
 
 # ペインIDファイルの存在確認
 if [ ! -f "$PANE_ID_FILE" ]; then

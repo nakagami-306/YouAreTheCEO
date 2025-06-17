@@ -4,11 +4,13 @@
 # コーディネーター中心のセットアップ（コーディネーターがワーカー数を決定）
 
 # 設定
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SESSION_NAME="claude-agents"
-PROJECT_DIR="/home/seito_nakagane/project/GaijinHub"
-TASK_DIR="$PROJECT_DIR/multi-agent/claude-tasks"
-COMM_DIR="$PROJECT_DIR/multi-agent/claude-comm"
-PANE_ID_FILE="$PROJECT_DIR/multi-agent/.pane_ids"
+PROJECT_DIR="$PROJECT_ROOT"
+TASK_DIR="$PROJECT_ROOT/YouAreTheCEO/claude-tasks"
+COMM_DIR="$PROJECT_ROOT/YouAreTheCEO/claude-comm"
+PANE_ID_FILE="$PROJECT_ROOT/YouAreTheCEO/.pane_ids"
 USE_DANGEROUS_FLAG=false
 
 # カラー定義
@@ -61,7 +63,7 @@ fi
 
 # 新しいtmuxセッションを作成（コーディネーターのみ）
 echo -e "${GREEN}Creating coordinator session...${NC}"
-tmux new-session -d -s $SESSION_NAME -n "coordinator" -c $PROJECT_DIR
+tmux new-session -d -s $SESSION_NAME -n "coordinator" -c $PROJECT_ROOT/YouAreTheCEO
 
 # ペインIDを記録する関数
 function save_pane_id() {
@@ -83,7 +85,7 @@ echo -e "${CYAN}Setting up Coordinator...${NC}"
 tmux send-keys -t $COORDINATOR_PANE "# Coordinator Claude Code Instance" C-m
 tmux send-keys -t $COORDINATOR_PANE "echo 'This is the COORDINATOR instance (Pane: $COORDINATOR_PANE)'" C-m
 tmux send-keys -t $COORDINATOR_PANE "echo '役割: タスク分析、ワーカー数決定、チーム管理'" C-m
-tmux send-keys -t $COORDINATOR_PANE "echo 'ワーカー追加: ./multi-agent/scripts/add-workers.sh [数]'" C-m
+tmux send-keys -t $COORDINATOR_PANE "echo 'ワーカー追加: ./scripts/add-workers.sh [数]'" C-m
 tmux send-keys -t $COORDINATOR_PANE "export CLAUDE_ROLE=coordinator" C-m
 tmux send-keys -t $COORDINATOR_PANE "export COORDINATOR_PANE=$COORDINATOR_PANE" C-m
 tmux send-keys -t $COORDINATOR_PANE "export TASK_DIR=$TASK_DIR" C-m
@@ -93,7 +95,7 @@ tmux send-keys -t $COORDINATOR_PANE "export SESSION_NAME=$SESSION_NAME" C-m
 
 # 簡易モニタリングウィンドウを作成
 echo -e "${GREEN}Setting up monitoring window...${NC}"
-tmux new-window -t $SESSION_NAME -n "monitor" -c $PROJECT_DIR
+tmux new-window -t $SESSION_NAME -n "monitor" -c $PROJECT_ROOT/YouAreTheCEO
 MONITOR_PANE=$(tmux list-panes -t $SESSION_NAME:monitor -F '#{pane_id}' | head -1)
 save_pane_id "monitor" "$MONITOR_PANE"
 
@@ -104,29 +106,52 @@ tmux send-keys -t $MONITOR_PANE "watch -n 2 'echo \"=== Multi-Agent Status ===\"
 tmux select-window -t $SESSION_NAME:coordinator
 tmux select-pane -t $COORDINATOR_PANE
 
+# コーディネーターにClaude 4 Opusを自動起動
+echo -e "${GREEN}Starting Claude 4 Opus Coordinator...${NC}"
+CLAUDE_CMD="claude --model opus"
+if [ "$USE_DANGEROUS_FLAG" = true ]; then
+    CLAUDE_CMD="$CLAUDE_CMD --dangerously-skip-permissions"
+fi
+
+# コーディネーターにClaude起動
+tmux send-keys -t $COORDINATOR_PANE "$CLAUDE_CMD" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+
+# Claude起動を待つ
+echo -e "${YELLOW}Waiting for Claude Coordinator to initialize...${NC}"
+sleep 3
+
+# コーディネーター指示書を読み込ませる
+echo -e "${GREEN}Loading coordinator instructions...${NC}"
+tmux send-keys -t $COORDINATOR_PANE "Read the file claude-coordinator.md to understand your role and capabilities." && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+
+sleep 2
+
+# 初期化完了メッセージ
+tmux send-keys -t $COORDINATOR_PANE "I am now ready as your Coordinator. Please describe your project requirements and I will:" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+tmux send-keys -t $COORDINATOR_PANE "1. Analyze the complexity and requirements" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+tmux send-keys -t $COORDINATOR_PANE "2. Determine optimal team size and structure" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+tmux send-keys -t $COORDINATOR_PANE "3. Break down tasks for parallel execution" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+tmux send-keys -t $COORDINATOR_PANE "4. Automatically spawn and coordinate workers" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+tmux send-keys -t $COORDINATOR_PANE "5. Monitor progress and ensure quality" && sleep 0.1 && tmux send-keys -t $COORDINATOR_PANE Enter
+
 # 完了メッセージ
 echo -e "${BLUE}===============================================${NC}"
-echo -e "${GREEN}Coordinator setup complete!${NC}"
+echo -e "${GREEN}Coordinator Ready and Operational!${NC}"
 echo -e "${BLUE}===============================================${NC}"
 echo ""
-echo -e "${CYAN}現在の構成:${NC}"
-echo -e "  ${CYAN}Coordinator${NC} - タスク分析・チーム管理 (Pane: $COORDINATOR_PANE)"
-echo -e "  ${YELLOW}Workers${NC} - まだ作成されていません"
+echo -e "${CYAN}Status:${NC}"
+echo -e "  ${GREEN}✓${NC} Claude 4 Opus Coordinator running (Pane: $COORDINATOR_PANE)"
+echo -e "  ${GREEN}✓${NC} Coordinator instructions loaded"
+echo -e "  ${GREEN}✓${NC} Ready to receive project requirements"
 echo ""
-echo -e "${YELLOW}次のステップ:${NC}"
-echo -e "1. ${GREEN}Coordinatorを起動${NC}: コーディネーターペインでClaude Codeを実行"
-echo -e "2. ${GREEN}タスクを分析${NC}: コーディネーターがタスクの複雑さを評価"
-echo -e "3. ${GREEN}ワーカー追加${NC}: ./multi-agent/scripts/add-workers.sh [数] でワーカーを追加"
-echo ""
-echo -e "${YELLOW}便利なコマンド:${NC}"
-echo -e "  ${GREEN}tmux attach -t $SESSION_NAME${NC} - セッションにアタッチ"
-echo -e "  ${GREEN}./multi-agent/scripts/add-workers.sh${NC} - ワーカー追加"
-echo -e "  ${GREEN}./multi-agent/scripts/parallel-clear.sh${NC} - 全ペインで/clearを実行"
+echo -e "${YELLOW}What happens next:${NC}"
+echo -e "1. ${CYAN}Describe your project${NC} to the Coordinator"
+echo -e "2. ${CYAN}Coordinator will analyze${NC} and determine team size"
+echo -e "3. ${CYAN}Workers will be spawned${NC} automatically with Claude 4 Sonnet"
+echo -e "4. ${CYAN}Parallel execution${NC} will begin under Coordinator supervision"
 echo ""
 
-# セッションにアタッチするか確認
-read -p "Do you want to attach to the session now? (y/n): " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    tmux attach -t $SESSION_NAME
-fi
+# 自動的にセッションにアタッチ
+echo -e "${GREEN}Attaching to Coordinator session...${NC}"
+sleep 1
+tmux attach -t $SESSION_NAME

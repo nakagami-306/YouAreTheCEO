@@ -2,10 +2,12 @@
 
 # チーム全体のステータス確認スクリプト
 
-PROJECT_DIR="/home/seito_nakagane/project/GaijinHub"
-TASK_DIR="$PROJECT_DIR/multi-agent/claude-tasks"
-COMM_DIR="$PROJECT_DIR/multi-agent/claude-comm"
-PANE_ID_FILE="$PROJECT_DIR/multi-agent/.pane_ids"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_DIR="$PROJECT_ROOT"
+TASK_DIR="$PROJECT_ROOT/YouAreTheCEO/claude-tasks"
+COMM_DIR="$PROJECT_ROOT/YouAreTheCEO/claude-comm"
+PANE_ID_FILE="$PROJECT_ROOT/YouAreTheCEO/.pane_ids"
 SESSION_NAME="claude-agents"
 
 # カラー定義
@@ -38,7 +40,7 @@ TITLE="Claude Multi-Agent Status Report"
 echo -e "${BLUE}==================================${NC}"
 echo -e "${GREEN}$TITLE${NC}"
 echo -e "${YELLOW}Time: $(date)${NC}"
-echo -e "${YELLOW}Mode: multi-agent${NC}"
+echo -e "${YELLOW}Mode: YouAreTheCEO${NC}"
 echo -e "${BLUE}==================================${NC}"
 echo ""
 

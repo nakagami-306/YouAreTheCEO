@@ -4,11 +4,13 @@
 # コーディネーターが必要に応じてワーカーを動的に追加するスクリプト
 
 # 設定
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 SESSION_NAME="claude-agents"
-PROJECT_DIR="/home/seito_nakagane/project/GaijinHub"
-PANE_ID_FILE="$PROJECT_DIR/multi-agent/.pane_ids"
-TASK_DIR="$PROJECT_DIR/multi-agent/claude-tasks"
-COMM_DIR="$PROJECT_DIR/multi-agent/claude-comm"
+PROJECT_DIR="$PROJECT_ROOT/YouAreTheCEO"
+PANE_ID_FILE="$PROJECT_DIR/.pane_ids"
+TASK_DIR="$PROJECT_DIR/claude-tasks"
+COMM_DIR="$PROJECT_DIR/claude-comm"
 
 # カラー定義
 RED='\033[0;31m'
@@ -170,9 +172,9 @@ tmux send-keys -t $COORDINATOR_PANE "echo '=== チーム構成が更新されま
 tmux send-keys -t $COORDINATOR_PANE "echo '新規ワーカー: $WORKERS_TO_ADD 人'" C-m
 tmux send-keys -t $COORDINATOR_PANE "echo '総ワーカー数: $NEW_TOTAL_WORKERS 人'" C-m
 tmux send-keys -t $COORDINATOR_PANE "echo '利用可能なコマンド:'" C-m
-tmux send-keys -t $COORDINATOR_PANE "echo '  ./multi-agent/scripts/assign-task.sh [WORKER_ID] [TASK]'" C-m
-tmux send-keys -t $COORDINATOR_PANE "echo '  ./multi-agent/scripts/check-status.sh'" C-m
-tmux send-keys -t $COORDINATOR_PANE "echo '  ./multi-agent/scripts/start-all-claude.sh'" C-m
+tmux send-keys -t $COORDINATOR_PANE "echo '  ./YouAreTheCEO/scripts/assign-task.sh [WORKER_ID] [TASK]'" C-m
+tmux send-keys -t $COORDINATOR_PANE "echo '  ./YouAreTheCEO/scripts/check-status.sh'" C-m
+tmux send-keys -t $COORDINATOR_PANE "echo '  ./YouAreTheCEO/scripts/start-all-claude.sh'" C-m
 tmux send-keys -t $COORDINATOR_PANE "export WORKER_COUNT=$NEW_TOTAL_WORKERS" C-m
 
 # コーディネーターペインをアクティブにする
@@ -189,8 +191,8 @@ echo -e "  ワーカー: ${NEW_TOTAL_WORKERS}"
 echo -e "  総エージェント: $((1 + NEW_TOTAL_WORKERS))"
 echo ""
 echo -e "${YELLOW}次のステップ:${NC}"
-echo -e "1. ${GREEN}Claude Code起動${NC}: ./multi-agent/scripts/start-all-claude.sh"
-echo -e "2. ${GREEN}タスク配布${NC}: ./multi-agent/scripts/assign-task.sh [WORKER_ID] [TASK]"
-echo -e "3. ${GREEN}進捗確認${NC}: ./multi-agent/scripts/check-status.sh"
+echo -e "1. ${GREEN}Claude Code起動${NC}: ./scripts/start-all-claude.sh"
+echo -e "2. ${GREEN}タスク配布${NC}: ./scripts/assign-task.sh [WORKER_ID] [TASK]"
+echo -e "3. ${GREEN}進捗確認${NC}: ./scripts/check-status.sh"
 echo ""
 echo -e "${BLUE}現在のセッション: tmux attach -t $SESSION_NAME${NC}"

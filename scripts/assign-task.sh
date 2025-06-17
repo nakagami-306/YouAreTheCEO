@@ -3,9 +3,11 @@
 # タスク割り当てスクリプト
 # Usage: ./assign-task.sh <worker_id> <task_description>
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORKER_ID=$1
 TASK_DESC=$2
-TASK_DIR="/home/seito_nakagane/project/GaijinHub/multi-agent/claude-tasks"
+TASK_DIR="$PROJECT_ROOT/YouAreTheCEO/claude-tasks"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 TASK_FILE="$TASK_DIR/worker${WORKER_ID}_task_${TIMESTAMP}.txt"
 
@@ -44,7 +46,7 @@ echo "Task assigned to Worker $WORKER_ID: $TASK_FILE"
 # tmuxペインに通知を送る（フラット構造）
 if tmux has-session -t claude-agents 2>/dev/null; then
     # WorkerペインIDを取得して直接通知
-    PANE_ID_FILE="/home/seito_nakagane/project/GaijinHub/multi-agent/.pane_ids"
+    PANE_ID_FILE="$PROJECT_ROOT/YouAreTheCEO/.pane_ids"
     if [ -f "$PANE_ID_FILE" ]; then
         WORKER_PANE=$(grep "^worker${WORKER_ID}=" "$PANE_ID_FILE" | cut -d= -f2)
         if [ -n "$WORKER_PANE" ]; then
