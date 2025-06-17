@@ -107,7 +107,10 @@ start_boss() {
 - あなたは`./scripts/communication.sh send_to_worker [worker_id] "$MESSAGE"`で指示
 
 ## 現在の作業ディレクトリ
-$(pwd)
+YouAreTheCEOシステムディレクトリ: $(pwd)
+ユーザープロジェクトルート: $(dirname "$(pwd)")
+
+注意: すべてのファイル操作はユーザープロジェクトルート（$(dirname "$(pwd)")）を基準に実行してください。
 
 準備完了です。ユーザーからの指示をお待ちしています。
 EOF

@@ -1,4 +1,4 @@
-# YouAreTheCEO v1.0
+# YouAreTheCEO v1.0.2
 
 並行開発のためのClaude Codeマルチエージェントシステム
 
@@ -21,24 +21,33 @@ YouAreTheCEOは、Claude Codeを活用したマルチエージェント並行開
 - Claude Code
 - Bash 4.0+
 
-## ディレクトリ構造
+## インストール
+
+### 1. GitHubからクローン
+
+```bash
+# あなたのプロジェクトルートディレクトリで実行
+git clone https://github.com/nakagami-306/YouAreTheCEO.git
+```
+
+### 2. ディレクトリ構造
 
 ```
-YouAreTheCEO/
-├── start-ceo.sh              # メイン起動スクリプト
-├── config/
-│   └── system-config.sh      # システム設定
-├── scripts/
-│   ├── boss-handler.sh       # 上司用自動化スクリプト
-│   ├── worker-handler.sh     # 部下用自動化スクリプト
-│   ├── communication.sh      # エージェント間通信システム
-│   └── setup-tmux.sh         # tmux自動セットアップ
-├── logs/                     # ログファイル
-│   ├── boss.log
-│   ├── communication.log
-│   ├── worker_*.log
-│   └── error.log
-└── README.md
+your-project/                  # あなたのプロジェクトルート
+├── src/                       # あなたのプロジェクトファイル
+├── package.json               # あなたのプロジェクト設定
+├── YouAreTheCEO/              # このシステム
+│   ├── start-ceo.sh           # メイン起動スクリプト
+│   ├── config/
+│   │   └── system-config.sh   # システム設定
+│   ├── scripts/
+│   │   ├── boss-handler.sh    # 上司用自動化スクリプト
+│   │   ├── worker-handler.sh  # 部下用自動化スクリプト
+│   │   ├── communication.sh   # エージェント間通信システム
+│   │   └── setup-tmux.sh      # tmux自動セットアップ
+│   ├── logs/                  # ログファイル
+│   └── README.md
+└── other-files...
 ```
 
 ## 使用方法
@@ -46,7 +55,8 @@ YouAreTheCEO/
 ### 1. システム起動
 
 ```bash
-# YouAreTheCEOディレクトリで実行
+# あなたのプロジェクトルートで実行
+cd YouAreTheCEO
 ./start-ceo.sh
 ```
 
@@ -58,11 +68,13 @@ tmux attach-session -t ceo-company
 
 ### 3. 上司に指示を出す
 
-tmuxセッション内で直接上司に指示を送信してください：
+tmuxセッション内で直接上司に指示を送信してください。上司はあなたのプロジェクトルート（YouAreTheCEOの親ディレクトリ）で作業します：
 
 ```
 Webアプリケーションの認証システムを実装してください。
 フロントエンド、バックエンド、データベース設計を並列で進めたいです。
+
+注意: すべてのファイル操作は私のプロジェクトルート（../）で実行してください。
 ```
 
 ### 4. 自動処理の流れ
@@ -130,16 +142,20 @@ tmux kill-session -t ceo-company
 
 ## ログとモニタリング
 
-- `logs/boss.log`: 上司の活動ログ
-- `logs/communication.log`: 通信ログ
-- `logs/worker_*.log`: 各部下の活動ログ
-- `logs/error.log`: エラーログ
+- `YouAreTheCEO/logs/boss.log`: 上司の活動ログ
+- `YouAreTheCEO/logs/communication.log`: 通信ログ  
+- `YouAreTheCEO/logs/worker_*.log`: 各部下の活動ログ
+- `YouAreTheCEO/logs/error.log`: エラーログ
+
+**注意**: ログはYouAreTheCEOディレクトリ内に保存されますが、実際の作業ファイルはあなたのプロジェクトルートに作成されます。
 
 ## トラブルシューティング
 
 ### セッションが見つからない
 
 ```bash
+# YouAreTheCEOディレクトリで実行
+cd YouAreTheCEO
 tmux list-sessions
 ./start-ceo.sh
 ```
@@ -147,6 +163,8 @@ tmux list-sessions
 ### 部下が応答しない
 
 ```bash
+# YouAreTheCEOディレクトリで実行
+cd YouAreTheCEO
 # 部下の状態確認
 ./scripts/boss-handler.sh manage_workers status
 
@@ -157,6 +175,8 @@ tmux list-sessions
 ### 通信エラー
 
 ```bash
+# YouAreTheCEOディレクトリで実行
+cd YouAreTheCEO
 # 通信状態確認
 ./scripts/communication.sh check_communication
 
@@ -169,6 +189,11 @@ tmux list-sessions
 MIT License
 
 ## 更新履歴
+
+### v1.0.2 (2025-06-17)
+- ユーザープロジェクトルート対応: GitHubからクローン後にプロジェクト内で使用可能
+- エージェントが自動でユーザープロジェクトルート（../）で作業
+- 明確なディレクトリ構造とインストール手順を追加
 
 ### v1.0.1 (2025-06-17)
 - 初回リリース
