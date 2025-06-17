@@ -1,0 +1,182 @@
+#!/bin/bash
+
+# YouAreTheCEO - マルチエージェント並行開発システム
+# Copyright (c) 2025 YouAreTheCEO Project
+
+set -e
+
+# 設定ファイルの読み込み
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/config/system-config.sh"
+
+# 関数定義
+print_banner() {
+    echo -e "${CEO_COLOR_SYSTEM}"
+    echo "=========================================="
+    echo "      YouAreTheCEO System v1.0"
+    echo "   Parallel Development with Claude Code"
+    echo "=========================================="
+    echo -e "${CEO_COLOR_RESET}"
+}
+
+print_status() {
+    echo -e "${CEO_COLOR_SYSTEM}[CEO System]${CEO_COLOR_RESET} $1"
+}
+
+print_error() {
+    echo -e "${CEO_COLOR_ERROR}[ERROR]${CEO_COLOR_RESET} $1"
+}
+
+check_dependencies() {
+    print_status "依存関係をチェック中..."
+    
+    if ! command -v tmux &> /dev/null; then
+        print_error "tmux がインストールされていません"
+        exit 1
+    fi
+    
+    if ! command -v claude &> /dev/null; then
+        print_error "Claude Code がインストールされていません"
+        exit 1
+    fi
+    
+    print_status "依存関係チェック完了"
+}
+
+cleanup_existing_session() {
+    if tmux has-session -t "$CEO_SESSION" 2>/dev/null; then
+        print_status "既存のセッション $CEO_SESSION をクリーンアップ中..."
+        tmux kill-session -t "$CEO_SESSION"
+        sleep 1
+    fi
+}
+
+create_tmux_session() {
+    print_status "tmux セッション '$CEO_SESSION' を作成中..."
+    
+    # セッション作成
+    tmux new-session -d -s "$CEO_SESSION" -x 120 -y 40
+    
+    # ウィンドウ名を設定
+    tmux rename-window -t "$CEO_SESSION:0" "CEO-Boss"
+    
+    # メインpaneでシステム初期化
+    tmux send-keys -t "$CEO_SESSION:0" "cd '$SCRIPT_DIR'" Enter
+    tmux send-keys -t "$CEO_SESSION:0" "echo 'CEO System initializing...'" Enter
+    
+    print_status "tmux セッション作成完了"
+}
+
+start_boss() {
+    print_status "上司（Boss）を起動中..."
+    
+    # 上司用の初期化スクリプトを作成
+    cat > "$CEO_LOGS/boss_init.txt" << 'EOF'
+あなたはYouAreTheCEOシステムの上司（Boss）です。
+
+## あなたの役割
+- ユーザーからの指示を受け取り、並列実行可能なワークフローに分解する
+- 必要最小限の部下（Worker）数を決定する
+- 各部下にタスクを割り振る
+- 部下からの進捗・問題報告を受け取り、適切に対処する
+- 全体の進行管理を行う
+
+## 重要な自動化ルール
+1. ユーザーから指示を受け取ったら、まず以下を実行：
+   ```bash
+   # ワークフロー分析用スクリプトを実行
+   ./scripts/boss-handler.sh analyze_workflow "$USER_TASK"
+   ```
+
+2. 部下が必要な場合は以下を実行：
+   ```bash
+   # 部下を起動（必要数を自動決定）
+   ./scripts/boss-handler.sh spawn_workers [数]
+   ```
+
+3. タスクを部下に割り振る場合：
+   ```bash
+   # タスク割り振り
+   ./scripts/boss-handler.sh assign_task [worker_id] "$TASK_DESCRIPTION"
+   ```
+
+4. 部下からの報告を受け取ったら適切に対処し、必要に応じてタスクを更新
+
+## 通信システム
+- 部下は`./scripts/communication.sh report_to_boss [worker_id] "$MESSAGE"`で報告
+- あなたは`./scripts/communication.sh send_to_worker [worker_id] "$MESSAGE"`で指示
+
+## 現在の作業ディレクトリ
+$(pwd)
+
+準備完了です。ユーザーからの指示をお待ちしています。
+EOF
+
+    # 上司を起動
+    tmux send-keys -t "$CEO_SESSION:0" "echo 'Starting Boss (Opus)...'" Enter
+    tmux send-keys -t "$CEO_SESSION:0" "$CC_BOSS" Enter
+    
+    # 初期化メッセージを送信
+    sleep 3
+    tmux send-keys -t "$CEO_SESSION:0" "$(cat "$CEO_LOGS/boss_init.txt")" Enter
+    
+    print_status "上司（Boss）起動完了"
+}
+
+initialize_system() {
+    print_status "システムを初期化中..."
+    
+    # ログディレクトリの準備
+    mkdir -p "$CEO_LOGS"
+    mkdir -p "$CEO_COMM_DIR"
+    
+    # ステータスファイルの初期化
+    echo "ready" > "$CEO_COMM_DIR/boss_status"
+    echo "0" > "$CEO_COMM_DIR/worker_count"
+    echo "" > "$CEO_COMM_DIR/task_queue"
+    
+    # 実行可能権限の設定
+    chmod +x "$SCRIPT_DIR/scripts"/*.sh 2>/dev/null || true
+    
+    print_status "システム初期化完了"
+}
+
+show_usage() {
+    echo -e "${CEO_COLOR_SYSTEM}"
+    echo "=========================================="
+    echo "      使用方法"
+    echo "=========================================="
+    echo "1. tmux セッションにアタッチ:"
+    echo "   tmux attach-session -t $CEO_SESSION"
+    echo ""
+    echo "2. 上司に指示を出す:"
+    echo "   直接メッセージを入力してください"
+    echo ""
+    echo "3. システム終了:"
+    echo "   tmux kill-session -t $CEO_SESSION"
+    echo ""
+    echo "4. 現在のセッション状況確認:"
+    echo "   tmux list-sessions"
+    echo "=========================================="
+    echo -e "${CEO_COLOR_RESET}"
+}
+
+# メイン実行
+main() {
+    print_banner
+    
+    check_dependencies
+    cleanup_existing_session
+    create_tmux_session
+    initialize_system
+    start_boss
+    
+    print_status "$CEO_MSG_READY"
+    show_usage
+    
+    echo -e "${CEO_COLOR_BOSS}[Boss Ready]${CEO_COLOR_RESET} セッションにアタッチして指示を出してください："
+    echo "tmux attach-session -t $CEO_SESSION"
+}
+
+# 実行
+main "$@"
