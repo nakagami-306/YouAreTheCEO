@@ -1,4 +1,4 @@
-# YouAreTheCEO v1.0.2
+# YouAreTheCEO v1.0.3
 
 並行開発のためのClaude Codeマルチエージェントシステム
 
@@ -105,10 +105,10 @@ tmux kill-session -t ceo-company
 ### 上司が使用する自動化コマンド
 
 ```bash
-# ワークフロー分析
-./scripts/boss-handler.sh analyze_workflow "$USER_TASK"
+# タスク情報保存（参考用）
+./scripts/boss-handler.sh save_workflow_info "$USER_TASK"
 
-# 部下起動
+# 部下起動（必要数を自分で判断）
 ./scripts/boss-handler.sh spawn_workers [数]
 
 # タスク割り振り
@@ -189,6 +189,11 @@ cd YouAreTheCEO
 MIT License
 
 ## 更新履歴
+
+### v1.0.3 (2025-06-17)
+- analyze_workflow関数を削除: Claudeが自分でワークフロー分析・部下数決定
+- より柔軟な判断システム: タスク複雑度以外の要因も考慮可能
+- save_workflow_info関数追加: タスク情報保存（参考用）
 
 ### v1.0.2 (2025-06-17)
 - ユーザープロジェクトルート対応: GitHubからクローン後にプロジェクト内で使用可能

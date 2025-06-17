@@ -18,46 +18,23 @@ log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1" | tee -a "$CEO_LOGS/error.log"
 }
 
-# ワークフロー分析
-analyze_workflow() {
+# 簡易的なワークフロー情報保存（Claudeが自分で判断するため）
+save_workflow_info() {
     local user_task="$1"
-    log_boss "ワークフロー分析開始: $user_task"
+    log_boss "ワークフロー情報を保存: $user_task"
     
-    # タスクの複雑度を分析（簡易版）
-    local complexity=1
-    local keywords=("複数" "並列" "同時" "分割" "複雑" "大規模" "多数")
-    
-    for keyword in "${keywords[@]}"; do
-        if echo "$user_task" | grep -qi "$keyword"; then
-            ((complexity++))
-        fi
-    done
-    
-    # 推奨部下数を計算
-    local recommended_workers=$((complexity > CEO_MAX_WORKERS ? CEO_MAX_WORKERS : complexity))
-    
-    echo "$recommended_workers" > "$CEO_COMM_DIR/recommended_workers"
-    
-    log_boss "分析完了 - 推奨部下数: $recommended_workers"
-    
-    # Boss に結果を報告
-    cat > "$CEO_COMM_DIR/workflow_analysis" << EOF
-ワークフロー分析結果:
-- タスク: $user_task
-- 複雑度: $complexity
-- 推奨部下数: $recommended_workers
-
-次のアクションを推奨します:
-1. spawn_workers コマンドで部下を起動
-2. assign_task コマンドでタスクを分割・割り振り
+    # タスク情報をファイルに保存（Claudeが参照用）
+    cat > "$CEO_COMM_DIR/current_task" << EOF
+$user_task
 EOF
     
+    log_boss "タスク情報保存完了"
     return 0
 }
 
 # 部下の起動
 spawn_workers() {
-    local worker_count="${1:-$(cat "$CEO_COMM_DIR/recommended_workers" 2>/dev/null || echo "$CEO_DEFAULT_WORKERS")}"
+    local worker_count="${1:-$CEO_DEFAULT_WORKERS}"
     
     log_boss "$worker_count 人の部下を起動中..."
     
@@ -260,8 +237,8 @@ main() {
     shift
     
     case "$command" in
-        "analyze_workflow")
-            analyze_workflow "$@"
+        "save_workflow_info")
+            save_workflow_info "$@"
             ;;
         "spawn_workers")
             spawn_workers "$@"
@@ -276,7 +253,7 @@ main() {
             handle_reports "$@"
             ;;
         *)
-            echo "使用方法: $0 {analyze_workflow|spawn_workers|assign_task|manage_workers|handle_reports} [args...]"
+            echo "使用方法: $0 {save_workflow_info|spawn_workers|assign_task|manage_workers|handle_reports} [args...]"
             exit 1
             ;;
     esac

@@ -3,11 +3,11 @@
 # YouAreTheCEO System Configuration
 
 # tmux セッション名
-export CEO_SESSION="ceo-company"
+export CEO_SESSION="your-company"
 
 # Claude Code エイリアス
-export CC_BOSS="claude --model claude-3-opus-20240229"
-export CC_WORKER="claude --model claude-3-5-sonnet-20241022"
+export CC_BOSS="claude --model opus --dangerously-skip-permissions"
+export CC_WORKER="claude --model sonnet --dangerously-skip-permissions"
 
 # プロジェクトルートディレクトリ
 export CEO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

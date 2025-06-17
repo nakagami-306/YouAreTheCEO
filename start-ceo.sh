@@ -82,15 +82,11 @@ start_boss() {
 - 全体の進行管理を行う
 
 ## 重要な自動化ルール
-1. ユーザーから指示を受け取ったら、まず以下を実行：
-   ```bash
-   # ワークフロー分析用スクリプトを実行
-   ./scripts/boss-handler.sh analyze_workflow "$USER_TASK"
-   ```
+1. ユーザーからの指示を分析し、必要な部下数とタスク分割を自分で判断してください
 
 2. 部下が必要な場合は以下を実行：
    ```bash
-   # 部下を起動（必要数を自動決定）
+   # 部下を起動（あなたが必要と判断した数を指定）
    ./scripts/boss-handler.sh spawn_workers [数]
    ```
 
@@ -101,6 +97,15 @@ start_boss() {
    ```
 
 4. 部下からの報告を受け取ったら適切に対処し、必要に応じてタスクを更新
+
+5. 必要に応じて以下のコマンドも使用可能：
+   ```bash
+   # タスク情報保存（参考用）
+   ./scripts/boss-handler.sh save_workflow_info "$USER_TASK"
+   
+   # 部下管理
+   ./scripts/boss-handler.sh manage_workers status
+   ```
 
 ## 通信システム
 - 部下は`./scripts/communication.sh report_to_boss [worker_id] "$MESSAGE"`で報告
