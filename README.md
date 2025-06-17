@@ -1,4 +1,4 @@
-# YouAreTheCEO v1.0.3
+# YouAreTheCEO v1.0.4
 
 並行開発のためのClaude Codeマルチエージェントシステム
 
@@ -6,13 +6,7 @@
 
 YouAreTheCEOは、Claude Codeを活用したマルチエージェント並行開発システムです。上司（Boss）として動作する1つのOpus Claude Codeと、部下（Worker）として動作する複数のSonnet Claude Codeが協調して、複雑なタスクを効率的に処理します。
 
-## 特徴
 
-- 🤖 **完全自動化**: ユーザーが指示を出すだけで、上司が自動でワークフローを分析し、部下を起動・管理
-- 🔄 **リアルタイム通信**: エージェント間でリアルタイムにコミュニケーション
-- 📊 **動的スケーリング**: タスクの複雑度に応じて必要最小限の部下数を自動決定
-- 🎯 **効率的な並列処理**: 複数のタスクを同時並行で実行
-- 📱 **tmux統合**: 美しく整理されたUI/UXでマルチエージェントを管理
 
 ## システム要件
 
@@ -20,15 +14,6 @@ YouAreTheCEOは、Claude Codeを活用したマルチエージェント並行開
 - tmux
 - Claude Code
 - Bash 4.0+
-
-## インストール
-
-### 1. GitHubからクローン
-
-```bash
-# あなたのプロジェクトルートディレクトリで実行
-git clone https://github.com/nakagami-306/YouAreTheCEO.git
-```
 
 ### 2. ディレクトリ構造
 
@@ -56,13 +41,11 @@ your-project/                  # あなたのプロジェクトルート
 
 ```bash
 # あなたのプロジェクトルートで実行
-cd YouAreTheCEO
-
 # 初回のみ: スクリプトに実行権限を付与
-chmod +x start-ceo.sh scripts/*.sh
+chmod +x ./YouAreTheCEO/start-ceo.sh ./YouAreTheCEO/scripts/*.sh
 
 # システム起動
-./start-ceo.sh
+./YouAreTheCEO/start-ceo.sh
 ```
 
 ### 2. セッションにアタッチ
@@ -205,6 +188,12 @@ chmod +x scripts/*.sh
 MIT License
 
 ## 更新履歴
+
+### v1.0.4 (2025-06-17)
+- Boss/Worker指示をMarkdown形式に変更（boss-instructions.md, worker-instructions.md）
+- 視認性向上: 絵文字とセクション分けで指示を明確化
+- システム起動時に/readコマンドで指示ファイルを自動読み込み
+- 「一人でやろうとしない」を強調した注意事項を追加
 
 ### v1.0.3 (2025-06-17)
 - analyze_workflow関数を削除: Claudeが自分でワークフロー分析・部下数決定

@@ -55,37 +55,15 @@ spawn_workers() {
         tmux send-keys -t "$CEO_SESSION:$pane_name" "cd '$SCRIPT_DIR'" Enter
         tmux send-keys -t "$CEO_SESSION:$pane_name" "$CC_WORKER" Enter
         
-        # 部下に初期化メッセージを送信
+        # 部下に初期化指示をマークダウンファイルから送信
         sleep 2
-        cat > "$CEO_COMM_DIR/worker_${i}_init.txt" << EOF
-あなたは部下ID: $worker_id です。
-
-## あなたの役割
-- 上司から割り振られたタスクを実行する
-- 進捗を定期的に報告する
-- 問題が発生した場合は即座に報告する
-- タスク完了時に結果を報告する
-
-## 作業ディレクトリ
-- YouAreTheCEOシステム: $SCRIPT_DIR
-- ユーザープロジェクトルート: $(dirname "$SCRIPT_DIR")
-- 重要: すべてのファイル操作はユーザープロジェクトルート（../）で実行してください
-
-## 重要な報告ルール
-進捗・問題・完了報告は必ず以下のコマンドを使用:
-\`\`\`bash
-./scripts/communication.sh report_to_boss $worker_id "\$MESSAGE"
-\`\`\`
-
-## 報告例
-- 進捗: ./scripts/communication.sh report_to_boss $worker_id "タスクAの50%完了"
-- 問題: ./scripts/communication.sh report_to_boss $worker_id "エラー: ファイルが見つかりません"
-- 完了: ./scripts/communication.sh report_to_boss $worker_id "タスク完了: 結果は..."
-
-準備完了です。上司からのタスク割り振りをお待ちしています。
-EOF
         
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "$(cat "$CEO_COMM_DIR/worker_${i}_init.txt")" Enter
+        # worker-instructions.mdをコピーして個別のworker_id用にカスタマイズ
+        local worker_instructions="$CEO_COMM_DIR/worker_${i}_instructions.md"
+        sed "s/{WORKER_ID}/$worker_id/g; s#{SCRIPT_DIR}#$SCRIPT_DIR#g; s#{PROJECT_ROOT}#$(dirname "$SCRIPT_DIR")#g" \
+            "$SCRIPT_DIR/config/worker-instructions.md" > "$worker_instructions"
+        
+        tmux send-keys -t "$CEO_SESSION:$pane_name" "/read $worker_instructions" Enter
         
         # 部下の状態を記録
         echo "ready" > "$CEO_COMM_DIR/worker_${i}_status"
