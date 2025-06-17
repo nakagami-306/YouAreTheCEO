@@ -57,6 +57,11 @@ your-project/                  # あなたのプロジェクトルート
 ```bash
 # あなたのプロジェクトルートで実行
 cd YouAreTheCEO
+
+# 初回のみ: スクリプトに実行権限を付与
+chmod +x start-ceo.sh scripts/*.sh
+
+# システム起動
 ./start-ceo.sh
 ```
 
@@ -157,6 +162,9 @@ tmux kill-session -t ceo-company
 # YouAreTheCEOディレクトリで実行
 cd YouAreTheCEO
 tmux list-sessions
+
+# 権限確認・再付与
+chmod +x start-ceo.sh scripts/*.sh
 ./start-ceo.sh
 ```
 
@@ -165,6 +173,10 @@ tmux list-sessions
 ```bash
 # YouAreTheCEOディレクトリで実行
 cd YouAreTheCEO
+
+# 権限確認
+chmod +x scripts/*.sh
+
 # 部下の状態確認
 ./scripts/boss-handler.sh manage_workers status
 
@@ -177,6 +189,10 @@ cd YouAreTheCEO
 ```bash
 # YouAreTheCEOディレクトリで実行
 cd YouAreTheCEO
+
+# 権限確認
+chmod +x scripts/*.sh
+
 # 通信状態確認
 ./scripts/communication.sh check_communication
 
