@@ -53,7 +53,7 @@ send_to_worker() {
     local formatted_message="[上司より] $message"
     
     # tmux経由でメッセージを送信
-    tmux send-keys -t "$CEO_SESSION:$pane_name" "$formatted_message" C-m
+    tmux send-keys -t "$CEO_SESSION:$pane_name" "$formatted_message" Enter
     
     # 送信ログを記録
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] TO_$worker_id: $message" >> "$CEO_LOGS/message_log.txt"
@@ -79,7 +79,7 @@ report_to_boss() {
     local formatted_message="[$worker_id] $message"
     
     # 上司のpaneに報告を送信
-    tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$formatted_message" C-m
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$formatted_message" Enter
     
     # 報告ログを記録
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] FROM_$worker_id: $message" >> "$CEO_LOGS/message_log.txt"
@@ -178,7 +178,7 @@ emergency_message() {
     
     case "$target" in
         "boss")
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$urgent_message" C-m
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$urgent_message" Enter
             # 画面をフラッシュさせる
             tmux display-message -t "$CEO_SESSION:CEO-Boss" "$urgent_message"
             ;;
@@ -218,15 +218,15 @@ system_notification() {
     case "$notification_type" in
         "worker_joined")
             # 新しい部下が参加
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" C-m
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
             ;;
         "worker_left")
             # 部下が離脱
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" C-m
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
             ;;
         "task_completed")
             # タスク完了通知
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" C-m
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
             ;;
         "error_occurred")
             # エラー発生通知
@@ -234,7 +234,7 @@ system_notification() {
             ;;
         *)
             # 汎用通知
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" C-m
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
             ;;
     esac
     

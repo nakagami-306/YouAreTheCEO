@@ -61,8 +61,8 @@ create_tmux_session() {
     tmux rename-window -t "$CEO_SESSION:0" "CEO-Boss"
     
     # メインpaneでシステム初期化
-    tmux send-keys -t "$CEO_SESSION:0" "cd '$SCRIPT_DIR'" C-m
-    tmux send-keys -t "$CEO_SESSION:0" "echo 'CEO System initializing...'" C-m
+    tmux send-keys -t "$CEO_SESSION:0" "cd '$SCRIPT_DIR'" Enter
+    tmux send-keys -t "$CEO_SESSION:0" "echo 'CEO System initializing...'" Enter
     
     print_status "tmux セッション作成完了"
 }
@@ -71,12 +71,13 @@ start_boss() {
     print_status "上司（Boss）を起動中..."
     
     # 上司を起動
-    tmux send-keys -t "$CEO_SESSION:0" "echo 'Starting Boss (Opus)...'" C-m
-    tmux send-keys -t "$CEO_SESSION:0" "$CC_BOSS" C-m
+    tmux send-keys -t "$CEO_SESSION:0" "echo 'Starting Boss (Opus)...'" Enter
+    tmux send-keys -t "$CEO_SESSION:0" "$CC_BOSS" Enter
     
     # 初期化指示をマークダウンファイルから送信
-    sleep 3
-    tmux send-keys -t "$CEO_SESSION:0" "/read $SCRIPT_DIR/config/boss-instructions.md" C-m
+    sleep 8
+    tmux send-keys -t "$CEO_SESSION:0" "/read $SCRIPT_DIR/config/boss-instructions.md"
+    tmux send-keys -t "$CEO_SESSION:0" Enter
     
     print_status "上司（Boss）起動完了"
 }

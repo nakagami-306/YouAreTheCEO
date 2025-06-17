@@ -52,8 +52,8 @@ spawn_workers() {
         tmux new-window -t "$CEO_SESSION" -n "$pane_name"
         
         # 部下用の初期化スクリプトを送信
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "cd '$SCRIPT_DIR'" C-m
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "$CC_WORKER" C-m
+        tmux send-keys -t "$CEO_SESSION:$pane_name" "cd '$SCRIPT_DIR'" Enter
+        tmux send-keys -t "$CEO_SESSION:$pane_name" "$CC_WORKER" Enter
         
         # 部下に初期化指示をマークダウンファイルから送信
         sleep 2
@@ -63,7 +63,8 @@ spawn_workers() {
         sed "s/{WORKER_ID}/$worker_id/g; s#{SCRIPT_DIR}#$SCRIPT_DIR#g; s#{PROJECT_ROOT}#$(dirname "$SCRIPT_DIR")#g" \
             "$SCRIPT_DIR/config/worker-instructions.md" > "$worker_instructions"
         
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "/read $worker_instructions" C-m
+        tmux send-keys -t "$CEO_SESSION:$pane_name" "/read $worker_instructions"
+        tmux send-keys -t "$CEO_SESSION:$pane_name" Enter
         
         # 部下の状態を記録
         echo "ready" > "$CEO_COMM_DIR/worker_${i}_status"
@@ -147,14 +148,14 @@ manage_workers() {
             if [[ -n "$worker_id" ]]; then
                 log_boss "部下 $worker_id のコンテキストをクリア中..."
                 local pane_name="CEO-Worker-${worker_id#worker_}"
-                tmux send-keys -t "$CEO_SESSION:$pane_name" "/clear" C-m
+                tmux send-keys -t "$CEO_SESSION:$pane_name" "/clear" Enter
                 log_boss "部下 $worker_id のクリア完了"
             else
                 log_boss "全部下のコンテキストをクリア中..."
                 local worker_count=$(cat "$CEO_COMM_DIR/worker_count" 2>/dev/null || echo "0")
                 for ((i=1; i<=worker_count; i++)); do
                     local pane_name="CEO-Worker-$i"
-                    tmux send-keys -t "$CEO_SESSION:$pane_name" "/clear" C-m &
+                    tmux send-keys -t "$CEO_SESSION:$pane_name" "/clear" Enter &
                 done
                 wait
                 log_boss "全部下のクリア完了"
@@ -195,7 +196,7 @@ handle_reports() {
     
     # 報告を Boss に転送（tmux経由）
     echo "[$worker_id] $report_message" > "$CEO_COMM_DIR/latest_report"
-    tmux send-keys -t "$CEO_SESSION:CEO-Boss" "echo '[$worker_id] $report_message'" C-m
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss" "echo '[$worker_id] $report_message'" Enter
     
     # 報告内容に応じた自動処理
     if echo "$report_message" | grep -qi "完了\|complete\|done"; then
