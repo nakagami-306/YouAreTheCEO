@@ -54,8 +54,10 @@ configure_tmux_settings() {
 setup_key_bindings() {
     log_tmux "CEO専用キーバインドを設定中..."
     
-    # プリフィックスキーの設定（デフォルトのCtrl-bを維持）
-    tmux set-option -g prefix C-b
+    # プリフィックスキーの設定（Ctrl-aに変更）
+    tmux set-option -g prefix C-a
+    tmux unbind-key C-b
+    tmux bind-key C-a send-prefix
     
     # CEO System専用のキーバインド
     # Ctrl-b + c: 新しい部下ウィンドウを作成

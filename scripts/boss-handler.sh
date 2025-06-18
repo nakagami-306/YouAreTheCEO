@@ -48,12 +48,26 @@ spawn_workers() {
         
         log_boss "部下 $worker_id を起動中..."
         
-        # 新しいpaneを作成
-        tmux new-window -t "$CEO_SESSION" -n "$pane_name"
+        # 新しいpaneを作成（ウィンドウではなくペイン分割）
+        if [[ $i -eq 1 ]]; then
+            # 最初の部下は垂直分割
+            tmux split-window -h -t "$CEO_SESSION:CEO-Boss"
+        else
+            # 2人目以降はレイアウトを調整
+            tmux split-window -t "$CEO_SESSION:CEO-Boss"
+            tmux select-layout -t "$CEO_SESSION:CEO-Boss" tiled
+        fi
         
-        # 部下用の初期化スクリプトを送信
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "cd '$SCRIPT_DIR'" Enter
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "$CC_WORKER" Enter
+        # ペインに名前を設定
+        tmux select-pane -t "$CEO_SESSION:CEO-Boss.$i" -T "$pane_name"
+        
+        # 部下用の初期化スクリプトを送信（ペイン番号を使用）
+        # 親ディレクトリに移動
+        tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" -l "cd '$(dirname "$SCRIPT_DIR")'"
+        tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" C-m
+        # -lフラグを使用してリテラル文字列として送信
+        tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" -l "$CC_WORKER"
+        tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" C-m
         
         # 部下に初期化指示をマークダウンファイルから送信
         sleep 2
@@ -64,8 +78,9 @@ spawn_workers() {
             "$SCRIPT_DIR/config/worker-instructions.md" > "$worker_instructions"
         
         # 部下にも簡潔な初期化メッセージを送信
-        local worker_init="あなたは部下ID: $worker_id です。上司からタスクを受け取り実行してください。報告: ./scripts/communication.sh report_to_boss $worker_id \"メッセージ\", 詳細は $worker_instructions を参照"
-        tmux send-keys -t "$CEO_SESSION:$pane_name" "$worker_init" Enter
+        local worker_init="詳細は $worker_instructions を参照してください。"
+        tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" -l "$worker_init"
+        tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" C-m
         
         # 部下の状態を記録
         echo "ready" > "$CEO_COMM_DIR/worker_${i}_status"
@@ -111,7 +126,7 @@ assign_task() {
     
     # タスクを部下に送信
     local pane_name="CEO-Worker-${worker_id#worker_}"
-    ./scripts/communication.sh send_to_worker "$worker_id" "$task_description"
+    ./YouAreTheCEO/scripts/communication.sh send_to_worker "$worker_id" "$task_description"
     
     # 部下の状態を「作業中」に更新
     echo "working" > "$CEO_COMM_DIR/${worker_id}_status"
@@ -148,15 +163,16 @@ manage_workers() {
             local worker_id="$2"
             if [[ -n "$worker_id" ]]; then
                 log_boss "部下 $worker_id のコンテキストをクリア中..."
-                local pane_name="CEO-Worker-${worker_id#worker_}"
-                tmux send-keys -t "$CEO_SESSION:$pane_name" "/clear" Enter
+                local worker_num="${worker_id#worker_}"
+                tmux send-keys -t "$CEO_SESSION:CEO-Boss.$worker_num" -l "/clear"
+                tmux send-keys -t "$CEO_SESSION:CEO-Boss.$worker_num" C-m
                 log_boss "部下 $worker_id のクリア完了"
             else
                 log_boss "全部下のコンテキストをクリア中..."
                 local worker_count=$(cat "$CEO_COMM_DIR/worker_count" 2>/dev/null || echo "0")
                 for ((i=1; i<=worker_count; i++)); do
-                    local pane_name="CEO-Worker-$i"
-                    tmux send-keys -t "$CEO_SESSION:$pane_name" "/clear" Enter &
+                    tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" -l "/clear"
+                    tmux send-keys -t "$CEO_SESSION:CEO-Boss.$i" C-m &
                 done
                 wait
                 log_boss "全部下のクリア完了"
@@ -166,9 +182,9 @@ manage_workers() {
         "shutdown")
             log_boss "全部下をシャットダウン中..."
             local worker_count=$(cat "$CEO_COMM_DIR/worker_count" 2>/dev/null || echo "0")
-            for ((i=1; i<=worker_count; i++)); do
-                local pane_name="CEO-Worker-$i"
-                tmux kill-window -t "$CEO_SESSION:$pane_name" 2>/dev/null || true
+            # ペインを逆順に削除（番号がずれないように）
+            for ((i=worker_count; i>=1; i--)); do
+                tmux kill-pane -t "$CEO_SESSION:CEO-Boss.$i" 2>/dev/null || true
             done
             echo "0" > "$CEO_COMM_DIR/worker_count"
             rm -f "$CEO_COMM_DIR"/worker_*_status
@@ -197,7 +213,8 @@ handle_reports() {
     
     # 報告を Boss に転送（tmux経由）
     echo "[$worker_id] $report_message" > "$CEO_COMM_DIR/latest_report"
-    tmux send-keys -t "$CEO_SESSION:CEO-Boss" "echo '[$worker_id] $report_message'" Enter
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "echo '[$worker_id] $report_message'"
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
     
     # 報告内容に応じた自動処理
     if echo "$report_message" | grep -qi "完了\|complete\|done"; then

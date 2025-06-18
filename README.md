@@ -23,17 +23,48 @@ your-project/                  # あなたのプロジェクトルート
 ├── package.json               # あなたのプロジェクト設定
 ├── YouAreTheCEO/              # このシステム
 │   ├── start-ceo.sh           # メイン起動スクリプト
+│   ├── CLAUDE.md              # Claude Code用指示ファイル
+│   ├── tmux-help.md           # tmuxキーバインドヘルプ
 │   ├── config/
-│   │   └── system-config.sh   # システム設定
+│   │   ├── system-config.sh   # システム設定
+│   │   ├── boss-instructions.md    # Bossエージェント用詳細指示
+│   │   └── worker-instructions.md  # Workerエージェント用詳細指示
 │   ├── scripts/
 │   │   ├── boss-handler.sh    # 上司用自動化スクリプト
 │   │   ├── worker-handler.sh  # 部下用自動化スクリプト
 │   │   ├── communication.sh   # エージェント間通信システム
 │   │   └── setup-tmux.sh      # tmux自動セットアップ
-│   ├── logs/                  # ログファイル
+│   ├── logs/                  # ログファイル（自動生成）
+│   │   ├── boss.log           # Bossエージェントの活動ログ
+│   │   ├── communication.log  # エージェント間通信ログ
+│   │   ├── worker_*.log       # 各Workerエージェントの活動ログ
+│   │   ├── worker_reports.log # Workerからの報告集約ログ
+│   │   ├── error.log          # システムエラーログ
+│   │   ├── emergency.log      # 緊急メッセージログ
+│   │   ├── message_log.txt    # 全メッセージ履歴
+│   │   ├── session.log        # tmuxセッション情報
+│   │   ├── session_monitor.log # セッション監視ログ
+│   │   ├── tmux.log           # tmux設定・操作ログ
+│   │   └── comm/              # 通信用ファイル（自動生成）
+│   │       ├── boss_status    # Bossの状態ファイル
+│   │       ├── worker_count   # 現在のWorker数
+│   │       ├── worker_*_status # 各Workerの状態
+│   │       ├── worker_*_task  # 各Workerのタスク内容
+│   │       ├── worker_*_instructions.md # 各Worker用カスタマイズ指示
+│   │       ├── worker_list    # Worker一覧
+│   │       ├── task_queue     # タスクキュー
+│   │       ├── task_assignments # タスク割り当て履歴
+│   │       ├── current_task   # 現在のメインタスク
+│   │       ├── boss_reports   # Boss向け報告キュー
+│   │       ├── latest_report  # 最新の報告
+│   │       ├── spawn_result   # Worker起動結果
+│   │       ├── worker_status_report # Worker状態レポート
+│   │       └── layout_*       # tmuxレイアウト設定
 │   └── README.md
 └── other-files...
 ```
+
+**注意**: `logs/` ディレクトリとその内容はシステム起動時に自動生成されます。手動で作成する必要はありません。
 
 ## 使用方法
 
@@ -51,7 +82,7 @@ chmod +x ./YouAreTheCEO/start-ceo.sh ./YouAreTheCEO/scripts/*.sh
 ### 2. セッションにアタッチ
 
 ```bash
-tmux attach-session -t ceo-company
+tmux attach-session -t your-company
 ```
 
 ### 3. 上司に指示を出す
@@ -61,8 +92,6 @@ tmuxセッション内で直接上司に指示を送信してください。上�
 ```
 Webアプリケーションの認証システムを実装してください。
 フロントエンド、バックエンド、データベース設計を並列で進めたいです。
-
-注意: すべてのファイル操作は私のプロジェクトルート（../）で実行してください。
 ```
 
 ### 4. 自動処理の流れ
@@ -77,46 +106,52 @@ Webアプリケーションの認証システムを実装してください。
 ### 5. システム終了
 
 ```bash
-tmux kill-session -t ceo-company
+tmux kill-session -t your-company
 ```
 
 ## 主要コマンド
 
 ### tmux操作
 
-- `Ctrl-b + c`: 新しい部下ウィンドウ作成
-- `Ctrl-b + w`: ワーカーリスト表示
-- `Ctrl-b + s`: システム状態表示
+#### キーボード操作
+- `Ctrl-b + o`: 次のペインへ移動
+- `Ctrl-b + 方向キー`: ペイン間移動
+- `Ctrl-b + z`: ペインの最大化/元に戻す
 - `Ctrl-b + Space`: レイアウト切り替え
-- `Ctrl-b + q`: pane番号表示
+- `Ctrl-b + q`: ペイン番号表示
+- `Ctrl-b + d`: セッションからデタッチ
+- `Ctrl-b + [`: コピーモードに入る（スクロール用）
+  - コピーモード中: 矢印キーでスクロール、`q`または`Esc`で終了
+
+※ プリフィックスキーは`Ctrl-b`（tmuxデフォルト）です
 
 ### 上司が使用する自動化コマンド
 
 ```bash
 # タスク情報保存（参考用）
-./scripts/boss-handler.sh save_workflow_info "$USER_TASK"
+./YouAreTheCEO/scripts/boss-handler.sh save_workflow_info "$USER_TASK"
 
 # 部下起動（必要数を自分で判断）
-./scripts/boss-handler.sh spawn_workers [数]
+./YouAreTheCEO/scripts/boss-handler.sh spawn_workers [数]
 
 # タスク割り振り
-./scripts/boss-handler.sh assign_task worker_1 "$TASK_DESCRIPTION"
+./YouAreTheCEO/scripts/boss-handler.sh assign_task worker_1 "$TASK_DESCRIPTION"
 
 # 部下管理
-./scripts/boss-handler.sh manage_workers status
+./YouAreTheCEO/scripts/boss-handler.sh manage_workers status
 ```
 
 ### 部下が使用する報告コマンド
 
 ```bash
 # 進捗報告
-./scripts/communication.sh report_to_boss worker_1 "タスクAの50%完了"
+./YouAreTheCEO/scripts/communication.sh report_to_boss worker_1 "タスクAの50%完了"
 
 # 問題報告
-./scripts/communication.sh report_to_boss worker_1 "エラー: ファイルが見つかりません"
+./YouAreTheCEO/scripts/communication.sh report_to_boss worker_1 "エラー: ファイルが見つかりません"
 
 # 完了報告
-./scripts/communication.sh report_to_boss worker_1 "タスク完了"
+./YouAreTheCEO/scripts/communication.sh report_to_boss worker_1 "タスク完了"
 ```
 
 ## 設定のカスタマイズ
@@ -138,6 +173,18 @@ tmux kill-session -t ceo-company
 **注意**: ログはYouAreTheCEOディレクトリ内に保存されますが、実際の作業ファイルはあなたのプロジェクトルートに作成されます。
 
 ## トラブルシューティング
+
+### tmuxキーバインドが動作しない
+
+```bash
+# キーバインド修正スクリプトを実行
+./YouAreTheCEO/scripts/fix-tmux-keys.sh
+
+# 詳細なトラブルシューティング
+cat ./YouAreTheCEO/tmux-troubleshooting.md
+```
+
+**代替方法**: マウス操作が最も確実です。ペインをクリックして選択できます。
 
 ### セッションが見つからない
 
@@ -188,6 +235,13 @@ chmod +x scripts/*.sh
 MIT License
 
 ## 更新履歴
+
+### v1.0.5 (2025-06-17)
+- 作業ディレクトリを親ディレクトリに変更: Boss/Workerがプロジェクトルートで直接作業
+- tmux prefixキーをCtrl-aに変更: より使いやすい設定
+- ペイン分割に変更: 全Workerが同一ウィンドウ内に表示
+- tmux send-keysに-lフラグ追加: 入力欄にメッセージが残る問題を解決
+- READMEにログファイル詳細を追記: 自動生成されるファイルを明記
 
 ### v1.0.4 (2025-06-17)
 - Boss/Worker指示をMarkdown形式に変更（boss-instructions.md, worker-instructions.md）

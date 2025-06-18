@@ -61,8 +61,11 @@ create_tmux_session() {
     tmux rename-window -t "$CEO_SESSION:0" "CEO-Boss"
     
     # メインpaneでシステム初期化
-    tmux send-keys -t "$CEO_SESSION:0" "cd '$SCRIPT_DIR'" Enter
-    tmux send-keys -t "$CEO_SESSION:0" "echo 'CEO System initializing...'" Enter
+    # 親ディレクトリに移動
+    tmux send-keys -t "$CEO_SESSION:0" -l "cd '$(dirname "$SCRIPT_DIR")'"
+    tmux send-keys -t "$CEO_SESSION:0" C-m
+    tmux send-keys -t "$CEO_SESSION:0" -l "echo 'CEO System initializing in project root...'"
+    tmux send-keys -t "$CEO_SESSION:0" C-m
     
     print_status "tmux セッション作成完了"
 }
@@ -71,14 +74,24 @@ start_boss() {
     print_status "上司（Boss）を起動中..."
     
     # 上司を起動
-    tmux send-keys -t "$CEO_SESSION:0" "echo 'Starting Boss (Opus)...'" Enter
-    tmux send-keys -t "$CEO_SESSION:0" "$CC_BOSS" Enter
+    tmux send-keys -t "$CEO_SESSION:0" -l "echo 'Starting Boss (Opus)...'"
+    tmux send-keys -t "$CEO_SESSION:0" C-m
+    # -lフラグを使用してリテラル文字列として送信
+    tmux send-keys -t "$CEO_SESSION:0" -l "$CC_BOSS"
+    tmux send-keys -t "$CEO_SESSION:0" C-m
     
-    # 初期化指示を簡潔なメッセージで送信
-    sleep 8
-    local init_message="あなたはYouAreTheCEOシステムの上司です。複雑なタスクは必ず部下を活用してください。部下起動: ./scripts/boss-handler.sh spawn_workers [数], タスク割振: ./scripts/boss-handler.sh assign_task worker_1 \"タスク\", 詳細は $SCRIPT_DIR/config/boss-instructions.md を参照"
+    # Claudeが起動するまで少し待機
+    sleep 3
     
-    tmux send-keys -t "$CEO_SESSION:0" "$init_message" Enter
+    # シンプルな初期化メッセージを送信
+    print_status "Bossに初期化指示を送信中..."
+    
+    # MDファイルを参照するだけのシンプルなメッセージ
+    local init_message=" $SCRIPT_DIR/config/boss-instructions.md を参照し、自身の役割を理解した後、ユーザーの指示を待ってください。"
+    
+    # -lフラグを使用してメッセージを送信
+    tmux send-keys -t "$CEO_SESSION:0" -l "$init_message"
+    tmux send-keys -t "$CEO_SESSION:0" C-m
     
     print_status "上司（Boss）起動完了"
 }
@@ -112,13 +125,36 @@ show_usage() {
     echo "2. 上司に指示を出す:"
     echo "   直接メッセージを入力してください"
     echo ""
-    echo "3. システム終了:"
+    echo "3. ペイン操作（マウス推奨）:"
+    echo "   - マウスクリック: ペイン選択"
+    echo "   - マウスホイール: スクロール"
+    echo "   - ドラッグ: テキスト選択"
+    echo "   - Ctrl-a + z: ペイン最大化（動作しない場合あり）"
+    echo ""
+    echo "4. システム終了:"
     echo "   tmux kill-session -t $CEO_SESSION"
     echo ""
-    echo "4. 現在のセッション状況確認:"
-    echo "   tmux list-sessions"
+    echo "5. トラブルシューティング:"
+    echo "   cat ./YouAreTheCEO/tmux-troubleshooting.md"
     echo "=========================================="
     echo -e "${CEO_COLOR_RESET}"
+}
+
+# 自動アタッチ確認
+auto_attach() {
+    echo ""
+    echo -e "${CEO_COLOR_SYSTEM}セッションに自動的にアタッチしますか？ (y/n):${CEO_COLOR_RESET} \c"
+    read -r response
+    
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        print_status "セッションにアタッチ中..."
+        sleep 1
+        tmux attach-session -t "$CEO_SESSION"
+    else
+        echo ""
+        echo -e "${CEO_COLOR_BOSS}[Boss Ready]${CEO_COLOR_RESET} セッションにアタッチして指示を出してください："
+        echo "tmux attach-session -t $CEO_SESSION"
+    fi
 }
 
 # メイン実行
@@ -134,8 +170,8 @@ main() {
     print_status "$CEO_MSG_READY"
     show_usage
     
-    echo -e "${CEO_COLOR_BOSS}[Boss Ready]${CEO_COLOR_RESET} セッションにアタッチして指示を出してください："
-    echo "tmux attach-session -t $CEO_SESSION"
+    # 自動アタッチの確認
+    auto_attach
 }
 
 # 実行

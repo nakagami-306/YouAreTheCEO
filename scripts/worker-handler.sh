@@ -187,7 +187,7 @@ report_progress() {
     log_worker "$worker_id" "進捗: $progress_message"
     
     # 上司に進捗を報告
-    ./scripts/communication.sh report_to_boss "$worker_id" "進捗: $progress_message"
+    ./YouAreTheCEO/scripts/communication.sh report_to_boss "$worker_id" "進捗: $progress_message"
 }
 
 # 上司への報告
@@ -196,7 +196,7 @@ report_to_boss() {
     local message="$2"
     
     # 通信スクリプト経由で報告
-    ./scripts/communication.sh report_to_boss "$worker_id" "$message"
+    ./YouAreTheCEO/scripts/communication.sh report_to_boss "$worker_id" "$message"
     
     log_worker "$worker_id" "上司に報告: $message"
 }
@@ -209,7 +209,7 @@ report_error() {
     log_error "$worker_id" "$error_message"
     
     # 上司にエラーを報告
-    ./scripts/communication.sh report_to_boss "$worker_id" "エラー: $error_message"
+    ./YouAreTheCEO/scripts/communication.sh report_to_boss "$worker_id" "エラー: $error_message"
     
     # ステータスをエラーに更新
     echo "error" > "$CEO_COMM_DIR/${worker_id}_status"

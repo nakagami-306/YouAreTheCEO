@@ -8,7 +8,7 @@ YouAreTheCEO is a multi-agent parallel development system using Claude Code. It 
 - **Boss Agent**: Claude Opus that analyzes workflows, determines worker requirements, and manages tasks
 - **Worker Agents**: Claude Sonnet instances that execute assigned tasks in parallel
 - **Communication System**: Real-time tmux-based inter-agent communication
-- **Working Directory**: User's project root (parent directory of YouAreTheCEO)
+- **Working Directory**: User's project root (`/home/seito_nakagane/project/` - parent directory of YouAreTheCEO)
 
 ## Essential Commands
 
@@ -90,15 +90,17 @@ Key settings in `config/system-config.sh`:
 
 ### For Boss Agents (Claude Opus)
 - **NO pre-defined workflow analysis**: You decide worker count and task division based on your judgment
-- **Work in user's project root**: Always use `../` as working directory for file operations
+- **Work in user's project root**: You are already in the project root directory - no need to use `../`
 - **Autonomous decision making**: Consider task complexity, dependencies, urgency, and specialization needs
 - **Use provided scripts**: Leverage automation scripts for worker management and communication
+- **Script paths**: Use `./YouAreTheCEO/scripts/` to access scripts from project root
 
 ### For Worker Agents (Claude Sonnet)
 - **Report frequently**: Use communication.sh to report progress, issues, and completion
-- **Work in user's project root**: All file operations should target `../` directory
+- **Work in user's project root**: You are already in the project root - work directly in current directory
 - **Follow task assignments**: Execute specific tasks assigned by boss agent
 - **Error handling**: Immediately report errors with context to boss agent
+- **Communication path**: Use `./YouAreTheCEO/scripts/communication.sh` for reporting
 
 ## Troubleshooting
 

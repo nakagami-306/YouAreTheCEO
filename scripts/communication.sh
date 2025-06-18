@@ -36,13 +36,12 @@ send_to_worker() {
         return 1
     fi
     
-    # 部下のpane名を取得
+    # 部下のペイン番号を取得
     local worker_num="${worker_id#worker_}"
-    local pane_name="CEO-Worker-$worker_num"
     
-    # paneの存在確認
-    if ! tmux list-windows -t "$CEO_SESSION" | grep -q "$pane_name"; then
-        log_error "部下 $worker_id のpane $pane_name が見つかりません"
+    # ペインの存在確認
+    if ! tmux list-panes -t "$CEO_SESSION:CEO-Boss" -F "#{pane_index}" | grep -q "$worker_num"; then
+        log_error "部下 $worker_id のペインが見つかりません"
         return 1
     fi
     
@@ -52,8 +51,9 @@ send_to_worker() {
     # 部下のpaneに直接メッセージを送信
     local formatted_message="[上司より] $message"
     
-    # tmux経由でメッセージを送信
-    tmux send-keys -t "$CEO_SESSION:$pane_name" "$formatted_message" Enter
+    # tmux経由でメッセージを送信（ペイン番号を使用）
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss.$worker_num" -l "$formatted_message"
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss.$worker_num" C-m
     
     # 送信ログを記録
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] TO_$worker_id: $message" >> "$CEO_LOGS/message_log.txt"
@@ -79,7 +79,8 @@ report_to_boss() {
     local formatted_message="[$worker_id] $message"
     
     # 上司のpaneに報告を送信
-    tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$formatted_message" Enter
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "$formatted_message"
+    tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
     
     # 報告ログを記録
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] FROM_$worker_id: $message" >> "$CEO_LOGS/message_log.txt"
@@ -178,7 +179,8 @@ emergency_message() {
     
     case "$target" in
         "boss")
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$urgent_message" Enter
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "$urgent_message"
+                        tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
             # 画面をフラッシュさせる
             tmux display-message -t "$CEO_SESSION:CEO-Boss" "$urgent_message"
             ;;
@@ -187,10 +189,9 @@ emergency_message() {
             ;;
         worker_*)
             send_to_worker "$target" "$urgent_message"
-            # 該当paneをハイライト
+            # 該当ペインをハイライト
             local worker_num="${target#worker_}"
-            local pane_name="CEO-Worker-$worker_num"
-            tmux display-message -t "$CEO_SESSION:$pane_name" "$urgent_message"
+            tmux display-message -t "$CEO_SESSION:CEO-Boss.$worker_num" "$urgent_message"
             ;;
         *)
             log_error "不正な緊急メッセージ対象: $target"
@@ -218,15 +219,18 @@ system_notification() {
     case "$notification_type" in
         "worker_joined")
             # 新しい部下が参加
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "$system_message"
+                        tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
             ;;
         "worker_left")
             # 部下が離脱
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "$system_message"
+                        tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
             ;;
         "task_completed")
             # タスク完了通知
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "$system_message"
+                        tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
             ;;
         "error_occurred")
             # エラー発生通知
@@ -234,7 +238,8 @@ system_notification() {
             ;;
         *)
             # 汎用通知
-            tmux send-keys -t "$CEO_SESSION:CEO-Boss" "$system_message" Enter
+            tmux send-keys -t "$CEO_SESSION:CEO-Boss" -l "$system_message"
+                        tmux send-keys -t "$CEO_SESSION:CEO-Boss" C-m
             ;;
     esac
     

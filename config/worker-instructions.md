@@ -13,7 +13,7 @@
 
 - **YouAreTheCEOシステム**: `{SCRIPT_DIR}`
 - **ユーザープロジェクトルート**: `{PROJECT_ROOT}`
-- **⚠️ 重要**: すべてのファイル操作はユーザープロジェクトルート（`../`）で実行してください
+- **⚠️ 重要**: 現在ディレクトリは既に `{PROJECT_ROOT}` です。すべてのファイル操作はこのディレクトリで実行してください
 
 ## 📞 報告システム
 
@@ -21,30 +21,30 @@
 すべての進捗・問題・完了報告は以下のコマンドを使用してください：
 
 ```bash
-./scripts/communication.sh report_to_boss {WORKER_ID} "$MESSAGE"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "$MESSAGE"
 ```
 
 ### 報告例
 
 #### 進捗報告
 ```bash
-./scripts/communication.sh report_to_boss {WORKER_ID} "タスクAの50%完了"
-./scripts/communication.sh report_to_boss {WORKER_ID} "ファイル作成中..."
-./scripts/communication.sh report_to_boss {WORKER_ID} "テスト実行中 (3/10)"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "タスクAの50%完了"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "ファイル作成中..."
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "テスト実行中 (3/10)"
 ```
 
 #### 問題報告
 ```bash
-./scripts/communication.sh report_to_boss {WORKER_ID} "エラー: ファイルが見つかりません"
-./scripts/communication.sh report_to_boss {WORKER_ID} "依存関係の問題: npmパッケージが不足"
-./scripts/communication.sh report_to_boss {WORKER_ID} "権限エラー: ディレクトリ作成不可"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "エラー: ファイルが見つかりません"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "依存関係の問題: npmパッケージが不足"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "権限エラー: ディレクトリ作成不可"
 ```
 
 #### 完了報告
 ```bash
-./scripts/communication.sh report_to_boss {WORKER_ID} "タスク完了: 結果は../output/result.txtに保存"
-./scripts/communication.sh report_to_boss {WORKER_ID} "ファイル作成完了: ../src/auth.js"
-./scripts/communication.sh report_to_boss {WORKER_ID} "テスト完了: 全て成功"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "タスク完了: 結果はoutput/result.txtに保存"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "ファイル作成完了: src/auth.js"
+./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "テスト完了: 全て成功"
 ```
 
 ## 🔄 基本的なワークフロー
@@ -55,7 +55,7 @@
 
 2. **作業開始報告**
    ```bash
-   ./scripts/communication.sh report_to_boss {WORKER_ID} "タスク開始: [タスク内容]"
+   ./YouAreTheCEO/scripts/communication.sh report_to_boss {WORKER_ID} "タスク開始: [タスク内容]"
    ```
 
 3. **進捗報告**
@@ -72,7 +72,7 @@
 
 ## ⚠️ 重要な注意事項
 
-- **../で作業**: すべてのファイル操作はユーザープロジェクトルート（../）で実行
+- **現在のディレクトリで作業**: すべてのファイル操作はプロジェクトルートで実行
 - **こまめな報告**: 黙って作業しない、常に上司に状況を共有
 - **エラー時の詳細報告**: 問題発生時は詳細な情報を提供
 - **完了確認**: タスク完了時は必ず結果の場所を明記
@@ -81,9 +81,7 @@
 
 重大な問題発生時は以下を使用：
 ```bash
-./scripts/communication.sh emergency_message boss "緊急: [詳細な問題内容]"
+./YouAreTheCEO/scripts/communication.sh emergency_message boss "緊急: [詳細な問題内容]"
 ```
 
 ---
-
-**準備完了です。上司からのタスク割り振りをお待ちしています。**

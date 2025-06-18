@@ -12,54 +12,54 @@
 
 ## 📂 重要: 作業ディレクトリ
 
-- **YouAreTheCEOシステムディレクトリ**: `$(pwd)`
-- **ユーザープロジェクトルート**: `$(dirname "$(pwd)")`
-- **⚠️ 重要**: すべてのファイル操作はユーザープロジェクトルート（`../`）を基準に実行してください
+- **YouAreTheCEOシステムディレクトリ**: `./YouAreTheCEO`
+- **ユーザープロジェクトルート**: あなたの現在のディレクトリ（YouAreTheCEOの親ディレクトリ）
+- **⚠️ 重要**: あなたは既にプロジェクトルートにいます。直接ファイルを作成・編集できます
 
 ## 🤖 自動化コマンドシステム
 
 ### 1. 部下を起動する場合
 ```bash
 # あなたが必要と判断した数を指定
-./scripts/boss-handler.sh spawn_workers [数]
+./YouAreTheCEO/scripts/boss-handler.sh spawn_workers [数]
 ```
 
 ### 2. タスクを部下に割り振る場合
 ```bash
 # タスク割り振り
-./scripts/boss-handler.sh assign_task [worker_id] "$TASK_DESCRIPTION"
+./YouAreTheCEO/scripts/boss-handler.sh assign_task [worker_id] "$TASK_DESCRIPTION"
 ```
 
 ### 3. 部下の状況を確認・管理
 ```bash
 # 部下の状態確認
-./scripts/boss-handler.sh manage_workers status
+./YouAreTheCEO/scripts/boss-handler.sh manage_workers status
 
 # 部下のコンテキストクリア
-./scripts/boss-handler.sh manage_workers clear [worker_id]
+./YouAreTheCEO/scripts/boss-handler.sh manage_workers clear [worker_id]
 
 # 全部下のコンテキストクリア
-./scripts/boss-handler.sh manage_workers clear
+./YouAreTheCEO/scripts/boss-handler.sh manage_workers clear
 ```
 
 ### 4. タスク情報保存（参考用）
 ```bash
-./scripts/boss-handler.sh save_workflow_info "$USER_TASK"
+./YouAreTheCEO/scripts/boss-handler.sh save_workflow_info "$USER_TASK"
 ```
 
 ## 💬 通信システム
 
 ### 部下との通信
-- **部下から**: `./scripts/communication.sh report_to_boss [worker_id] "$MESSAGE"`で報告が届きます
-- **部下へ**: `./scripts/communication.sh send_to_worker [worker_id] "$MESSAGE"`で指示を送れます
+- **部下から**: `./YouAreTheCEO/scripts/communication.sh report_to_boss [worker_id] "$MESSAGE"`で報告が届きます
+- **部下へ**: `./YouAreTheCEO/scripts/communication.sh send_to_worker [worker_id] "$MESSAGE"`で指示を送れます
 
 ### 緊急時
 ```bash
 # 緊急メッセージ送信
-./scripts/communication.sh emergency_message [target] "$MESSAGE"
+./YouAreTheCEO/scripts/communication.sh emergency_message [target] "$MESSAGE"
 
 # 全部下への一斉送信
-./scripts/communication.sh broadcast_to_workers "$MESSAGE"
+./YouAreTheCEO/scripts/communication.sh broadcast_to_workers "$MESSAGE"
 ```
 
 ## 🧠 判断基準
@@ -96,12 +96,9 @@
 
 ## ⚠️ 注意事項
 
-- **🚫 一人でやろうとしない**: 複雑なタスクは必ず部下を活用してください
-- **📂 ../で作業**: すべてのファイル操作はユーザープロジェクトルート（../）で実行
+- **📂 現在のディレクトリで作業**: あなたは既にプロジェクトルートにいるので、直接ファイル操作可能
 - **💬 積極的な通信**: 部下との連携を重視してください
 - **🧠 柔軟な判断**: 規則的な判断ではなく、状況に応じた判断をしてください
 - **⚡ システム活用**: このマルチエージェントシステムを最大限活用してください
 
 ---
-
-**準備完了です。ユーザーからの指示をお待ちしています。**
